@@ -1,0 +1,2 @@
+javac -sourcepath ./src -d bin src/laix/interpreter/CLASSNAME.java
+java -classpath ./bin laix.interpreter.UI
