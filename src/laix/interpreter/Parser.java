@@ -1,6 +1,5 @@
 package laix.interpreter;
 
-//import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -8,28 +7,32 @@ import java.util.Stack;
 public class Parser {
 	private List<Token> tokens;
 	private Token currentToken;
-	private int currentTokenNumber = 0;
-	//private 
+	private int currentTokenNumber;
 		
 	public void setTokens(List<Token> tokens){
 		this.tokens = tokens;
+		currentTokenNumber = -1;
 	}
 
 	public boolean match(){
-		currentToken = tokens.get(currentTokenNumber);
 		currentTokenNumber++;
+		currentToken = tokens.get(currentTokenNumber);
+		System.out.println("[" + currentTokenNumber + "] " + currentToken);
+
 		return false;
 	}
 	
 	public void lang() throws Exception {
+		say("Start of parsing.");
 		boolean exist = false;
-		while ( currentTokenNumber < tokens.size() && expr() ) {
+		while ( currentTokenNumber < (tokens.size()-1) && expr() ) {
 			exist = true;
 		}
 
 		if (!exist) {
 			throw new Exception("expr expected");
 		}
+		say("Done!");
 	}
 	
 	public boolean expr() throws Exception {
@@ -38,45 +41,43 @@ public class Parser {
 		} else {
 			throw new Exception("declare or assign expected, but " + currentToken + "found.");
 		}		
-	}
-	
+	}	
 	
 	public boolean declare() throws Exception{
-		//=log();
+		say("Calling declare:");
+		match();
 		if( varKw() ) {
-			//=log();
+			match();
 			if ( var() ) {
-				//=log();
+				match();
 				if ( sm() ) {
-					//=log();
 					return true;
 				}else { //!sm()
 					throw new Exception("VAR_KW, VAR found; SM expected; currentToken: " + currentToken);
 				}
-			}else { //!var()
-				
+			}else { //!var()				
 				throw new Exception("VAR_KW found; VAR expected; currentToken: " + currentToken);
 			}
 		}else { //!varKw()
-			//=log();
+			say("Declare not found.");
 			currentTokenNumber--;
 			return false;
 		}
-	}
-	
+	}	
 	
 	public boolean assign() throws Exception{
+		say("Calling assign:");
+		match();
 		if ( var() ) {
-			//=log();
+			match();
 			if ( assignOp() ) {
-				//=log();
+				match();
 				if ( stmt() ) {
-					//=log();
+					match();
 					if ( sm() ) {
-						//=log();
 						return true;
 					}else { //!sm
-						throw new Exception("VAR, ASSIGN_OP, statment found; SM expected; currentToken: " + currentToken);
+						throw new Exception("VAR, ASSIGN_OP, statment found; SM expected; currentToken: [" + currentTokenNumber + "] " + currentToken);
 					}
 				}else { //!stmt
 					throw new Exception("VAR, ASSIGN_OP found; statment expected; currentToken: " + currentToken);
@@ -85,146 +86,78 @@ public class Parser {
 				throw new Exception("VAR found; ASSIGN_OP expected; currentToken: " + currentToken);
 			}
 		}else { //!var
-			//=log();
+			say("Assign not found.");
 			currentTokenNumber--;
 			return false;
 		}
 	}
 	
-	
 	public boolean stmt() throws Exception{
-		if ( stmtUnit() ){
-			while ( plus()||minus()||mult()||del() ){
-				if(!stmtUnit()){
+		if ( digit() || var() ) {
+			match();
+			if (currentToken.getName().equals("SM")) {
+				currentTokenNumber--;
+				return true;
+			}
+
+			while ( plus() || minus() || mult() || del() ) {
+				match();
+				if( !digit() && !var() ){
 					throw new Exception("Statment Unit, Operation found; Statment Unit expected; currentToken: " + currentToken);
 				}
-			} 
+				match();
+			}
+			if (currentToken.getName().equals("SM")) {
+				currentTokenNumber--;
+				return true;
+			}
+
 			return true;
 		}else {
 			return false;
 		}		
 	}
 
+	/*
 	public boolean stmtUnit() throws Exception{
 		if ( digit() || var() ){
 			return true;
 		}else {
 			return false;
 		}		
-	}
+	}*/
 	
 	public boolean sm()  {
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
 		return currentToken.getName().equals("SM");
 	}
 	public boolean varKw(){
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
 		return currentToken.getName().equals("VAR_KW");
 	}
 	public boolean assignOp() {
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
 		return currentToken.getName().equals("ASSIGN_OP");
 	}
 	
 	public boolean plus() {
-		//=System.out.println("plus called.");
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
-
-		if ( currentToken.getName().equals("PLUS_OP") ) {
-			return true;
-		}else {
-			currentTokenNumber--;
-			return false;
-		}
+		return ( currentToken.getName().equals("PLUS_OP") );
 	}
 	
 	public boolean minus() {
-		//=System.out.println("minus called.");
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
-
-		if ( currentToken.getName().equals("MINUS_OP") ) {
-			return true;
-		}else {
-			currentTokenNumber--;
-			return false;
-		}
+		return ( currentToken.getName().equals("MINUS_OP") );
 	}
 
 	public boolean mult() {
-		//=System.out.println("mult called.");
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
-
-		if ( currentToken.getName().equals("MULT_OP") ) {
-			return true;
-		}else {
-			currentTokenNumber--;
-			return false;
-		}
+		return ( currentToken.getName().equals("MULT_OP") );
 	}
 
 	public boolean del() {
-		//=System.out.println("del called.");
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
-
-		if ( currentToken.getName().equals("DEL_OP") ) {
-			return true;
-		}else {
-			currentTokenNumber--;
-			return false;
-		}
+		return ( currentToken.getName().equals("DEL_OP") );
 	}
-	
-		/*match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
-		return currentToken.getName().equals("SM");
-	}*/
-/*
-	public boolean varKw(){
-		match();
-		if ( currentToken.getName().equals("WS"*/
 
 	public boolean digit() {
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
-
-		if ( currentToken.getName().equals("DIGIT") ) {
-		 	return true;
-		}else {
-			currentTokenNumber--;
-			return false;
-		}
+		return currentToken.getName().equals("DIGIT");
 	}
 
 	public boolean var() {
-		match();
-		if ( currentToken.getName().equals("WS") ) {
-			match();
-		}
 		return currentToken.getName().equals("VAR");
 	}
 
@@ -243,12 +176,12 @@ public class Parser {
 
 		int tempTokenNumber = currentTokenNumber;
 		Token tempToken = currentToken;
-
+		int currentExprTokenNumber = 0; //??
 
 
 		while (currentExprTokenNumber < exprTokens.size()) {
 			//match();
-			if ( stmtUnit() ) {
+			if ( digit() || var() ) {
 				pfTokens.add( new PostfixToken(currentToken) );
 			}
 
@@ -298,9 +231,7 @@ public class Parser {
 		return pfTokens;
 	}
 
-	/*
-	private void log() {
-		System.out.println("\nCurrenToken: " + currentToken);
+		private void say( String str ) {
+		System.out.println("Parser: " + str);
 	}
-	*/
 }
