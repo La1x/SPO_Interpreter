@@ -9,7 +9,9 @@ public class UI{
 
 	public static void main(String[] args) throws Exception {
 		//wrongInput();
+		System.out.println("Start.");
 		validInput();
+		System.out.println("Done!");
 	}
 
 	static void wrongInput() throws Exception {
@@ -27,7 +29,7 @@ public class UI{
 		lexer.processInput(fileName);
 		List<Token> tokens = lexer.getTokens();
 
-		Parser parser= new Parser();
+		Parser parser = new Parser();
 		parser.setTokens(tokens);
 		parser.lang();
 
@@ -35,6 +37,5 @@ public class UI{
 		//PolizProcessor processor = new PolizProcessor(postfixToken);
 		//process poliz body , print var table
 		//processor.go();
-		System.out.println("Done!");
 	}
 }
