@@ -67,11 +67,12 @@ public class Lexer {
 		while( (line = breader.readLine()) != null ) {
 			processLine(line);
 		}
+		/*
 		System.out.println("TOKEN("
 			+ currentLucky
 			+ ") recognized with value : "
 			+ accum
-			);
+			);*/
 
 		tokens.add(new Token(currentLucky, accum));
 
@@ -101,18 +102,20 @@ public class Lexer {
 		}
 
 		if ( currentLucky != null && !found ) {
-			System.out.println("TOKEN("
+			/*System.out.println("TOKEN("
 			+ currentLucky
 			+ ") recognized with value : "
 			+ accum.substring(0, accum.length()-1)
-			);
+			);*/
 
-			tokens.add(new Token(currentLucky, accum.substring(0, accum.length()-1)));
+			if ( !currentLucky.equals("WS") ) {
+				tokens.add(new Token(currentLucky, accum.substring(0, accum.length()-1)));	
+			}
+			
 			i--;
 			accum = "";
 			currentLucky = null;
 		}
-
 
 		for ( String regExpName : keyWords.keySet() ) {
 			Pattern currentPattern = keyWords.get(regExpName);
@@ -124,11 +127,11 @@ public class Lexer {
 		}
 
 		if ( currentLucky != null && !found ) {
-			System.out.println("TOKEN("
+			/*System.out.println("TOKEN("
 			+ currentLucky
 			+ ") recognized with value : "
 			+ accum.substring(0, accum.length()-1)
-			);
+			);*/
 
 			tokens.add(new Token(currentLucky, accum.substring(0, accum.length()-1)));
 			i--;
