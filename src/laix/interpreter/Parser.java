@@ -6,6 +6,7 @@ import java.util.Stack;
 
 public class Parser {
 	private List<Token> tokens;
+	private List<Token> stmtAccum;
 	private Token currentToken;
 	private int currentTokenNumber;
 		
@@ -75,6 +76,8 @@ public class Parser {
 				if ( stmt() ) {
 					match();
 					if ( sm() ) {
+						getPostfixToken(stmtAccum);
+						//do poliz here
 						return true;
 					}else { //!sm
 						throw new Exception("VAR, ASSIGN_OP, statment found; SM expected; currentToken: [" + currentTokenNumber + "] " + currentToken);
@@ -94,6 +97,8 @@ public class Parser {
 	
 	public boolean stmt() throws Exception{
 		if ( digit() || var() ) {
+			stmtAccum = new ArrayList<Token> ();
+			stmtAccum.add( currentToken );
 			match();
 			if (currentToken.getName().equals("SM")) {
 				currentTokenNumber--;
@@ -101,10 +106,12 @@ public class Parser {
 			}
 
 			while ( plus() || minus() || mult() || del() ) {
+				stmtAccum.add( currentToken );
 				match();
 				if( !digit() && !var() ){
 					throw new Exception("Statment Unit, Operation found; Statment Unit expected; currentToken: " + currentToken);
 				}
+				stmtAccum.add( currentToken );
 				match();
 			}
 			if (currentToken.getName().equals("SM")) {
@@ -169,44 +176,46 @@ public class Parser {
 				 currentToken.getName().equals("ASSIGN_OP") );
 	}
 	
-	public List<PostfixToken> getPostfixToken( List<Token> exprTokens) throws Exception {
-		List<PostfixToken> pfTokens = new ArrayList<PostfixToken>();
+	public List<PostfixToken> getPostfixToken( List<Token> infixTokens ) throws Exception {
+		List<PostfixToken> postfixTokens = new ArrayList<PostfixToken>();
 		Stack<PostfixToken> stack = new Stack<PostfixToken>();
 		int lastPriority = 0;
+		int currentInfixTokenNumber = -1;
+		//Token currentInfixToken = null;
 
-		int tempTokenNumber = currentTokenNumber;
-		Token tempToken = currentToken;
-		int currentExprTokenNumber = 0; //??
+		// int tempTokenNumber = currentTokenNumber;
+		Token tempToken = currentToken; //save origin cur token
+		// currentToken = infixTokens.get(currentInfixTokenNumberI)
 
+		while (currentInfixTokenNumber < (infixTokens.size()-1) ) {
+			// match
+			currentInfixTokenNumber++;
+			currentToken = infixTokens.get(currentInfixTokenNumber);
 
-		while (currentExprTokenNumber < exprTokens.size()) {
-			//match();
 			if ( digit() || var() ) {
-				pfTokens.add( new PostfixToken(currentToken) );
+				postfixTokens.add( new PostfixToken(currentToken) );
 			}
 
-			if ( op() ) {
-				//currentExprTokenNumber--;
-				//if( !stack.empty() ) 
-					while( !stack.empty() && (new PostfixToken(currentToken).getOpPriority() <= lastPriority )) {
-						pfTokens.add( stack.pop() );
-						if( stack.empty() ) {
-							lastPriority = 0;
-						} else {
-							lastPriority = stack.peek().getOpPriority();
-						}
+			if ( plus() || minus() || mult() || del() ) {
+				while( !stack.empty() && (new PostfixToken(currentToken).getOpPriority() <= lastPriority )) {
+					postfixTokens.add( stack.pop() );
+					if( stack.empty() ) {
+						lastPriority = -1;
+					} else {
+						lastPriority = stack.peek().getOpPriority();
 					}
-				//}
+				}
 
 				stack.push( new PostfixToken(currentToken) );
-				lastPriority = new PostfixToken(currentToken).getOpPriority();
+				lastPriority = stack.peek().getOpPriority();
 			}
 
-			if ( currentToken.getName().equals("SM") ) {
+			//infixTokens doesnt have "SM" token
+			/*if ( currentToken.getName().equals("SM") ) {
 				while( !stack.empty() ) {
-					pfTokens.add( stack.pop() );
+					postfixTokens.add( stack.pop() );
 				}
-			}
+			}*/
 
 			/*
 			if ( brOpen() ) {
@@ -220,15 +229,19 @@ public class Parser {
 			//currentExprTokenNumber++;
 		}
 
-		System.out.println("->Postfix:");
-		for(int i = 0; i < pfTokens.size(); i++) {
-			System.out.print(pfTokens.get(i).getValue() + " ");
+		while( !stack.empty() ) {
+			postfixTokens.add( stack.pop() );
+		}
+
+		say("Postfix tokens:");
+		for(int i = 0; i < postfixTokens.size(); i++) {
+			System.out.print(postfixTokens.get(i).getValue() + " ");
 		}
 		System.out.println("");
 
 		currentToken = tempToken;
-		currentTokenNumber = tempTokenNumber;
-		return pfTokens;
+		//currentTokenNumber = tempTokenNumber;
+		return postfixTokens;
 	}
 
 		private void say( String str ) {
