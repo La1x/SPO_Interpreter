@@ -76,8 +76,8 @@ public class Parser {
 				if ( stmt() ) {
 					match();
 					if ( sm() ) {
-						getPostfixToken(stmtAccum);
-						//do poliz here
+						PolizProcessor poliz =  new PolizProcessor( getPostfixToken(stmtAccum) );
+						say("poliz result=" + poliz.go());
 						return true;
 					}else { //!sm
 						throw new Exception("VAR, ASSIGN_OP, statment found; SM expected; currentToken: [" + currentTokenNumber + "] " + currentToken);
@@ -232,8 +232,8 @@ public class Parser {
 		while( !stack.empty() ) {
 			postfixTokens.add( stack.pop() );
 		}
-
-		say("Postfix tokens:");
+		
+		System.out.print("Parser: postfix tokens: ");
 		for(int i = 0; i < postfixTokens.size(); i++) {
 			System.out.print(postfixTokens.get(i).getValue() + " ");
 		}
