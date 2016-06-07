@@ -9,6 +9,8 @@ public class Parser {
 	private List<Token> stmtAccum;
 	private Token currentToken;
 	private int currentTokenNumber;
+	private VarTable topVarTable;
+	private VarTable savedVarTable;
 		
 	public void setTokens(List<Token> tokens){
 		this.tokens = tokens;
@@ -26,6 +28,11 @@ public class Parser {
 	public void lang() throws Exception {
 		say("Start of parsing.");
 		boolean exist = false;
+
+		topVarTable = null;
+		savedVarTable = topVarTable;
+		topVarTable = new VarTable(topVarTable);
+
 		while ( currentTokenNumber < (tokens.size()-1) && expr() ) {
 			exist = true;
 		}
@@ -33,6 +40,7 @@ public class Parser {
 		if (!exist) {
 			throw new Exception("expr expected");
 		}
+		topVarTable.print();
 		say("Done!");
 	}
 	
@@ -52,6 +60,7 @@ public class Parser {
 			if ( var() ) {
 				match();
 				if ( sm() ) {
+					topVarTable.put( tokens.get( currentTokenNumber-1 ).getValue(), 0 );
 					return true;
 				}else { //!sm()
 					throw new Exception("VAR_KW, VAR found; SM expected; currentToken: " + currentToken);
@@ -68,16 +77,20 @@ public class Parser {
 	
 	public boolean assign() throws Exception{
 		say("Calling assign:");
+		String varName;
 		match();
 		if ( var() ) {
+			varName = currentToken.getValue();
 			match();
 			if ( assignOp() ) {
 				match();
 				if ( stmt() ) {
 					match();
 					if ( sm() ) {
-						PolizProcessor poliz =  new PolizProcessor( getPostfixToken(stmtAccum) );
-						say("poliz result=" + poliz.go());
+						PolizProcessor poliz =  new PolizProcessor( getPostfixToken(stmtAccum), topVarTable );
+						Integer result = poliz.go();
+						topVarTable.put( varName, result );
+						say("poliz result = " + result);
 						return true;
 					}else { //!sm
 						throw new Exception("VAR, ASSIGN_OP, statment found; SM expected; currentToken: [" + currentTokenNumber + "] " + currentToken);

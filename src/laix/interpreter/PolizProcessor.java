@@ -7,12 +7,14 @@ import java.lang.Integer;
 public class PolizProcessor {
 	private List<PostfixToken> postfixTokens;
 	private PostfixToken currentToken;
+	private VarTable varTable;
 
-	public PolizProcessor(List<PostfixToken> postfixTokens) {
+	public PolizProcessor(List<PostfixToken> postfixTokens, VarTable vt) {
 		this.postfixTokens = postfixTokens;
+		this.varTable = vt;
 	}
 
-	public int go() {
+	public int go() throws Exception {
 		Stack<PostfixToken> stack = new Stack<PostfixToken>();
 		int i = 0;
 		while ( i < (postfixTokens.size()) ) {
@@ -22,7 +24,11 @@ public class PolizProcessor {
 			}
 
 			if ( var() ) {
-					
+				Integer varValue = varTable.get( currentToken.getValue() );
+				if ( varValue == null ) {
+					throw new Exception("Variable must be declared: " + currentToken);
+				}
+				stack.push( new PostfixToken( "DIGIT", varValue.toString() ) );	
 			}
 
 			if ( op() ) {
@@ -72,4 +78,11 @@ public class PolizProcessor {
 				 currentToken.getName().equals("DEL_OP") );
 	}
 
+	public void setVarTable(VarTable vt) {
+		varTable = vt;
+	}
+
+	public VarTable getVarTable() {
+		return varTable;
+	}
 }
