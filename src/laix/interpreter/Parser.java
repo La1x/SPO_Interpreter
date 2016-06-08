@@ -84,6 +84,7 @@ public class Parser {
 			match();
 			if ( assignOp() ) {
 				match();
+				stmtAccum = new ArrayList<Token> ();
 				if ( stmt() ) {
 					match();
 					if ( sm() ) {
@@ -108,12 +109,64 @@ public class Parser {
 		}
 	}
 	
-	public boolean stmt() throws Exception{
-		if ( digit() || var() ) {
-			stmtAccum = new ArrayList<Token> ();
+	public boolean stmt() throws Exception {
+		if ( operand() ) {
+			match();
+
+			if ( sm() ) {
+				currentTokenNumber--;
+				return true;
+			}
+
+			if ( op() ) {
+				stmtAccum.add( currentToken );
+				match();
+				stmt();
+			}
+		} else {
+			throw new Exception("1 " + currentToken);
+		}
+		return true;			
+	}
+
+	public boolean operand() throws Exception {
+		if ( brOpen() ) {
 			stmtAccum.add( currentToken );
 			match();
-			if (currentToken.getName().equals("SM")) {
+			if ( operand() ) {
+				stmtAccum.add( currentToken );
+				match();
+				while ( !brClose() ) {
+					if ( op() ) {
+						stmtAccum.add( currentToken );
+						match();
+						if ( operand() ) {
+							stmtAccum.add( currentToken );
+							match();
+						} else {
+							throw new Exception("");
+						}
+					} else {
+						throw new Exception("");
+					}
+				}
+				stmtAccum.add( currentToken );
+			} else {
+				throw new Exception("");
+			}
+		} else if ( stmtUnit() ) {
+			stmtAccum.add( currentToken );
+			return true;
+		} else if ( brClose() ) {
+			return false;
+		}
+		return true;
+/*
+		if ( stmtUnit()  ) {
+			//stmtAccum = new ArrayList<Token> ();
+			stmtAccum.add( currentToken );
+			match();
+			if ( sm() ) {
 				currentTokenNumber--;
 				return true;
 			}
@@ -127,7 +180,7 @@ public class Parser {
 				stmtAccum.add( currentToken );
 				match();
 			}
-			if (currentToken.getName().equals("SM")) {
+			if ( sm() ) {
 				currentTokenNumber--;
 				return true;
 			}
@@ -135,17 +188,16 @@ public class Parser {
 			return true;
 		}else {
 			return false;
-		}		
+		}	*/
 	}
-
-	/*
+	
 	public boolean stmtUnit() throws Exception{
 		if ( digit() || var() ){
 			return true;
 		}else {
 			return false;
 		}		
-	}*/
+	}
 	
 	public boolean sm()  {
 		return currentToken.getName().equals("SM");
@@ -188,6 +240,14 @@ public class Parser {
 				 currentToken.getName().equals("DEL_OP") ||
 				 currentToken.getName().equals("ASSIGN_OP") );
 	}
+
+	public boolean brOpen() {
+		return currentToken.getName().equals("BRK_O");
+	}
+
+	public boolean brClose() {
+		return currentToken.getName().equals("BRK_C");
+	}
 	
 	public List<PostfixToken> getPostfixToken( List<Token> infixTokens ) throws Exception {
 		List<PostfixToken> postfixTokens = new ArrayList<PostfixToken>();
@@ -204,6 +264,18 @@ public class Parser {
 			// match
 			currentInfixTokenNumber++;
 			currentToken = infixTokens.get(currentInfixTokenNumber);
+
+			if ( brOpen() ) {
+				stack.push( new PostfixToken(currentToken) );
+				//say("just pushing open bracket = " + stack.peek() );
+			}
+
+			if ( brClose() ) {
+				while( !stack.peek().getName().equals("BRK_O") ) {				
+					postfixTokens.add( stack.pop() );
+				}
+				stack.pop();
+			}
 
 			if ( digit() || var() ) {
 				postfixTokens.add( new PostfixToken(currentToken) );
@@ -222,24 +294,6 @@ public class Parser {
 				stack.push( new PostfixToken(currentToken) );
 				lastPriority = stack.peek().getOpPriority();
 			}
-
-			//infixTokens doesnt have "SM" token
-			/*if ( currentToken.getName().equals("SM") ) {
-				while( !stack.empty() ) {
-					postfixTokens.add( stack.pop() );
-				}
-			}*/
-
-			/*
-			if ( brOpen() ) {
-				
-			}
-
-			if ( brClose() ) {
-				
-			}
-			*/
-			//currentExprTokenNumber++;
 		}
 
 		while( !stack.empty() ) {

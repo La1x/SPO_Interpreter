@@ -15,20 +15,19 @@ public class Lexer {
 	String accum="";
 
 	//patterns are here
-	private Pattern pSM = Pattern.compile("^;$");
-	private Pattern pASSIGN_OP = Pattern.compile("^=$");
-	//private Pattern pOP = Pattern.compile("^\\-|\\+|\\/|\\*$");
+	private Pattern pSM = Pattern.compile("^;$");	
 	private Pattern pDIGIT = Pattern.compile("^0|[1-9]{1}[0-9]*$");
 	private Pattern pVAR = Pattern.compile("^[a-zA-Z]+$"); 
 	private Pattern pWS = Pattern.compile("^\\s*$");
 
+	private Pattern pASSIGN_OP = Pattern.compile("^=$");
 	private Pattern pPLUS_OP = Pattern.compile("^[+]$");
 	private Pattern pMINUS_OP = Pattern.compile("^[-]$");
 	private Pattern pDEL_OP = Pattern.compile("^[/]$");
 	private Pattern pMULT_OP = Pattern.compile("^[*]$");
 	
-	private Pattern pBRK_OP = Pattern.compile("^[(]$");
-	private Pattern pBRK_CL = Pattern.compile("^[)]$");
+	private Pattern pBRK_O = Pattern.compile("^[(]$");
+	private Pattern pBRK_C = Pattern.compile("^[)]$");
 
 	private Pattern pVAR_KW  = Pattern.compile("^var$");
 	
@@ -55,8 +54,8 @@ public class Lexer {
 		commonTerminals.put("MINUS_OP", pMINUS_OP);
 		commonTerminals.put("DEL_OP", pDEL_OP);
 		commonTerminals.put("MULT_OP", pMULT_OP);
-		commonTerminals.put("BRK_OP", pBRK_OP);
-		commonTerminals.put("BRK_CL", pBRK_CL);
+		commonTerminals.put("BRK_O", pBRK_O);
+		commonTerminals.put("BRK_C", pBRK_C);
 	}
 
 	public void processInput(String fileName) throws IOException {
