@@ -88,7 +88,13 @@ public class Parser {
 				if ( stmt() ) {
 					match();
 					if ( sm() ) {
-						PolizProcessor poliz =  new PolizProcessor( getPostfixToken(stmtAccum), topVarTable );
+						say("stmtAccum: ");
+						print(stmtAccum);
+						PostfixMaker pfm = new PostfixMaker();
+						pfm.make(stmtAccum);
+						say("Maker.out: ");
+						pfm.print();
+						PolizProcessor poliz =  new PolizProcessor( pfm.get(), topVarTable );
 						Integer result = poliz.go();
 						topVarTable.put( varName, result );
 						say("poliz result = " + result);
@@ -133,15 +139,13 @@ public class Parser {
 		if ( brOpen() ) {
 			stmtAccum.add( currentToken );
 			match();
-			if ( operand() ) {
-				stmtAccum.add( currentToken );
+			if ( operand() ) {	
 				match();
 				while ( !brClose() ) {
 					if ( op() ) {
 						stmtAccum.add( currentToken );
 						match();
 						if ( operand() ) {
-							stmtAccum.add( currentToken );
 							match();
 						} else {
 							throw new Exception("");
@@ -150,10 +154,10 @@ public class Parser {
 						throw new Exception("");
 					}
 				}
-				stmtAccum.add( currentToken );
 			} else {
 				throw new Exception("");
 			}
+			stmtAccum.add( currentToken );
 		} else if ( stmtUnit() ) {
 			stmtAccum.add( currentToken );
 			return true;
@@ -161,34 +165,6 @@ public class Parser {
 			return false;
 		}
 		return true;
-/*
-		if ( stmtUnit()  ) {
-			//stmtAccum = new ArrayList<Token> ();
-			stmtAccum.add( currentToken );
-			match();
-			if ( sm() ) {
-				currentTokenNumber--;
-				return true;
-			}
-
-			while ( plus() || minus() || mult() || del() ) {
-				stmtAccum.add( currentToken );
-				match();
-				if( !digit() && !var() ){
-					throw new Exception("Statment Unit, Operation found; Statment Unit expected; currentToken: " + currentToken);
-				}
-				stmtAccum.add( currentToken );
-				match();
-			}
-			if ( sm() ) {
-				currentTokenNumber--;
-				return true;
-			}
-
-			return true;
-		}else {
-			return false;
-		}	*/
 	}
 	
 	public boolean stmtUnit() throws Exception{
@@ -248,70 +224,15 @@ public class Parser {
 	public boolean brClose() {
 		return currentToken.getName().equals("BRK_C");
 	}
-	
-	public List<PostfixToken> getPostfixToken( List<Token> infixTokens ) throws Exception {
-		List<PostfixToken> postfixTokens = new ArrayList<PostfixToken>();
-		Stack<PostfixToken> stack = new Stack<PostfixToken>();
-		int lastPriority = 0;
-		int currentInfixTokenNumber = -1;
-		//Token currentInfixToken = null;
 
-		// int tempTokenNumber = currentTokenNumber;
-		Token tempToken = currentToken; //save origin cur token
-		// currentToken = infixTokens.get(currentInfixTokenNumberI)
-
-		while (currentInfixTokenNumber < (infixTokens.size()-1) ) {
-			// match
-			currentInfixTokenNumber++;
-			currentToken = infixTokens.get(currentInfixTokenNumber);
-
-			if ( brOpen() ) {
-				stack.push( new PostfixToken(currentToken) );
-				//say("just pushing open bracket = " + stack.peek() );
-			}
-
-			if ( brClose() ) {
-				while( !stack.peek().getName().equals("BRK_O") ) {				
-					postfixTokens.add( stack.pop() );
-				}
-				stack.pop();
-			}
-
-			if ( digit() || var() ) {
-				postfixTokens.add( new PostfixToken(currentToken) );
-			}
-
-			if ( plus() || minus() || mult() || del() ) {
-				while( !stack.empty() && (new PostfixToken(currentToken).getOpPriority() <= lastPriority )) {
-					postfixTokens.add( stack.pop() );
-					if( stack.empty() ) {
-						lastPriority = -1;
-					} else {
-						lastPriority = stack.peek().getOpPriority();
-					}
-				}
-
-				stack.push( new PostfixToken(currentToken) );
-				lastPriority = stack.peek().getOpPriority();
-			}
-		}
-
-		while( !stack.empty() ) {
-			postfixTokens.add( stack.pop() );
-		}
-		
-		System.out.print("Parser: postfix tokens: ");
-		for(int i = 0; i < postfixTokens.size(); i++) {
-			System.out.print(postfixTokens.get(i).getValue() + " ");
-		}
-		System.out.println("");
-
-		currentToken = tempToken;
-		//currentTokenNumber = tempTokenNumber;
-		return postfixTokens;
+	private void say( String str ) {
+		System.out.println("Parser: " + str);
 	}
 
-		private void say( String str ) {
-		System.out.println("Parser: " + str);
+	public void print( List<Token> ts ) {
+		for(Token t : ts ) {
+            System.out.print(t.getValue() + " ");
+        }
+		System.out.println("");
 	}
 }
