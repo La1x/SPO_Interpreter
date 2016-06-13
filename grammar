@@ -1,0 +1,29 @@
+[Key words]
+VAR_KW : var
+FOR_KW : for
+WHILE_KW : while
+FUNCTION : pow|fact
+[End]
+
+[Terminals]
+SM : ';'
+SEP : ','
+ASSIGN_OP : '='
+DOT_OP : '.'
+PLUS_OP : '+'
+MINUS_OP : '-'
+DEL_OP : '/'
+MULT_OP : '*'
+GRT_OP : '>'
+LST_OP : '<'
+BRK_O : '('
+BRK_C : ')'
+CBRK_O : '}'
+CBRK_C : '{'
+[End]
+
+/*
+DIGIT
+VAR
+WS
+*/
