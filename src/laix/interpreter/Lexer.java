@@ -14,48 +14,24 @@ public class Lexer {
 
 	String accum="";
 
-	//patterns are here
-	private Pattern pSM = Pattern.compile("^;$");	
+	// Global patterns
 	private Pattern pDIGIT = Pattern.compile("^0|[1-9]{1}[0-9]*$");
 	private Pattern pVAR = Pattern.compile("^[a-zA-Z]+$"); 
 	private Pattern pWS = Pattern.compile("^\\s*$");
 
-	private Pattern pASSIGN_OP = Pattern.compile("^=$");
-	private Pattern pPLUS_OP = Pattern.compile("^[+]$");
-	private Pattern pMINUS_OP = Pattern.compile("^[-]$");
-	private Pattern pDEL_OP = Pattern.compile("^[/]$");
-	private Pattern pMULT_OP = Pattern.compile("^[*]$");
-	
-	private Pattern pBRK_O = Pattern.compile("^[(]$");
-	private Pattern pBRK_C = Pattern.compile("^[)]$");
-
-	private Pattern pVAR_KW  = Pattern.compile("^var$");
-	
-	//maps are here
+	// maps
 	private Map<String, Pattern> commonTerminals = new HashMap<String, Pattern> ();
 	private Map<String, Pattern> keyWords = new HashMap<String, Pattern> ();
 
 	private String currentLucky = null;
 	private int i;
 
-	public Lexer() {
+	public Lexer() throws Exception{
 
-		//add pattern to map for keywords recognition
-		keyWords.put("VAR_KW", pVAR_KW); 
-
-		//add pattern to map for regular terminals recognition
-		commonTerminals.put("SM", pSM);
-		commonTerminals.put("ASSIGN_OP", pASSIGN_OP);
-		//commonTerminals.put("OP", pOP);
+		loadGrammar("grammar");
 		commonTerminals.put("DIGIT", pDIGIT);
 		commonTerminals.put("VAR", pVAR);
-		commonTerminals.put("WS", pWS);
-		commonTerminals.put("PLUS_OP", pPLUS_OP);
-		commonTerminals.put("MINUS_OP", pMINUS_OP);
-		commonTerminals.put("DEL_OP", pDEL_OP);
-		commonTerminals.put("MULT_OP", pMULT_OP);
-		commonTerminals.put("BRK_O", pBRK_O);
-		commonTerminals.put("BRK_C", pBRK_C);
+		commonTerminals.put("WS", pWS);		
 	}
 
 	public void processInput(String fileName) throws IOException {
@@ -142,4 +118,35 @@ public class Lexer {
 	public List<Token> getTokens() {
 		return tokens;
 	}
+
+	public void loadGrammar(String filename) throws Exception {
+		System.out.println("Load grammar.");
+		File file = new File(filename);
+		Reader reader = new FileReader(file);
+		BufferedReader breader = new BufferedReader(reader);
+		String line;
+		while( (line = breader.readLine()) != null ) {
+			if ( line.equals("[Key words]") ) {
+				System.out.println(line);
+				line = breader.readLine();
+				while ( !line.equals("[End]") ) {
+					String[] parts = line.split(Pattern.quote(" : "));
+					Pattern pTemp = Pattern.compile("^" + parts[1].replace("\'","") + "$");
+					keyWords.put(parts[0], pTemp);
+					line = breader.readLine();
+				}
+			}
+			if ( line.equals("[Terminals]") ) {
+				System.out.println(line);
+				line = breader.readLine();
+				while ( !line.equals("[End]") ) {
+					String[] parts = line.split(Pattern.quote(" : "));
+					Pattern pTemp = Pattern.compile("^[" + parts[1].replace("\'","") + "]$");
+					commonTerminals.put(parts[0], pTemp);
+					line = breader.readLine();
+				}
+			}
+		}
+	}
+	
 }
