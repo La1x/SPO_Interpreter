@@ -129,6 +129,10 @@ public class Parser {
 				match();
 				stmt();
 			}
+
+			if ( brOpen() || brClose() ) {
+				throw new Exception("\n[!]Syntax error: wrong bracket in statement.");
+			}
 		} else {
 			throw new Exception("1 " + currentToken);
 		}
@@ -139,32 +143,25 @@ public class Parser {
 		if ( brOpen() ) {
 			stmtAccum.add( currentToken );
 			match();
-			if ( operand() ) {	
-				match();
-				while ( !brClose() ) {
-					if ( op() ) {
-						stmtAccum.add( currentToken );
-						match();
-						if ( operand() ) {
-							match();
-						} else {
-							throw new Exception("");
-						}
-					} else {
-						throw new Exception("");
-					}
-				}
+			if ( operand() ) {
+				return true;
 			} else {
-				throw new Exception("");
+				throw new Exception("Operand expected. currentToken: " + currentToken);
 			}
-			stmtAccum.add( currentToken );
-		} else if ( stmtUnit() ) {
-			stmtAccum.add( currentToken );
-			return true;
-		} else if ( brClose() ) {
-			return false;
 		}
-		return true;
+
+		if ( stmtUnit() ) {
+			stmtAccum.add( currentToken );
+			match();
+			while ( brClose() ) {
+				stmtAccum.add( currentToken );
+				match();
+			}
+			currentTokenNumber--;
+			return true;			
+		}
+
+		return false;
 	}
 	
 	public boolean stmtUnit() throws Exception{

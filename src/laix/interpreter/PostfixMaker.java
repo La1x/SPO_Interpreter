@@ -12,11 +12,16 @@ public class PostfixMaker {
 	private int currentTokenNumber;
 	private PostfixToken currentToken;
 
-	public void make( List<Token> infixTokens ) {
+	public void make( List<Token> infixTokens ) throws Exception {
 		stack.clear();
 		outTokens.clear();
 		currentTokenNumber = -1;
 		currentToken = null;
+
+		String inputStatement = new String();
+		for (Token t : infixTokens) {
+			inputStatement += t.getValue();
+		}
 
 		while ( currentTokenNumber < (infixTokens.size()-1) ) {
 			currentTokenNumber++;
@@ -32,7 +37,12 @@ public class PostfixMaker {
 				while ( !stack.empty() && !isOpenBracket(stack.peek()) ) {
 					outTokens.add(stack.pop());
 				}
+
+				if ( stack.empty() || !isOpenBracket(stack.peek()) ) {
+					throw new Exception("\n[!]Syntax error: open bracket expected at statement\n\"" + inputStatement + "\"\n");
+				}
 				stack.pop();
+
 				if ( !stack.empty() && isFunction(stack.peek()) ) {
 					outTokens.add( stack.pop() );
 				}
@@ -52,6 +62,9 @@ public class PostfixMaker {
 		}
 
 		while ( !stack.empty() ) {
+			if ( isOpenBracket(stack.peek()) ) {
+				throw new Exception("\n[!]Syntax error: close bracket expected at statement\n\"" + inputStatement + "\"\n");
+			}
 			outTokens.add( stack.pop() );
 		}
 	}
