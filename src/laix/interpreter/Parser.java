@@ -146,7 +146,7 @@ public class Parser {
 			if ( operand() ) {
 				return true;
 			} else {
-				throw new Exception("Operand expected. currentToken: " + currentToken);
+				throw new Exception("\n[!]Syntax error: operand expected. currentToken: " + currentToken);
 			}
 		}
 
@@ -161,6 +161,10 @@ public class Parser {
 			return true;			
 		}
 
+		if ( functionStmt() ) {
+			return true;
+		}
+
 		return false;
 	}
 	
@@ -171,12 +175,63 @@ public class Parser {
 			return false;
 		}		
 	}
+
+	public boolean functionStmt() throws Exception{
+		if ( function() ) {
+			stmtAccum.add( currentToken );
+			match();
+			if ( brOpen() ) {
+				stmtAccum.add( currentToken );
+				match();
+				if ( stmtUnit() ) {
+					stmtAccum.add( currentToken );
+					match();
+					if ( brClose() ) {
+						stmtAccum.add( currentToken );
+						return true;
+					} else if ( separator() ) {
+						stmtAccum.add( currentToken );
+						match();
+						if ( stmtUnit() ) {
+							stmtAccum.add( currentToken );
+							match();
+							if ( brClose() ) {
+								stmtAccum.add( currentToken );
+								return true;
+							} else {
+								throw new Exception("\n[!]Syntax error: close bracket expected or function can have only two operands: " + currentToken);	
+							}
+						} else {
+							throw new Exception("\n[!]Syntax error: operand expected in function: " + currentToken);	
+						}
+					} else {
+						throw new Exception("\n[!]Syntax error: close bracket or separator expected in function: " + currentToken);	
+					}
+				} else {
+					throw new Exception("\n[!]Syntax error: operand expected in function: " + currentToken);	
+				}
+			} else {
+				throw new Exception("\n[!]Syntax error: open bracket expected in function: " + currentToken);
+			}
+		} else {
+			return false;
+		}
+		
+	}
 	
 	public boolean sm()  {
 		return currentToken.getName().equals("SM");
 	}
+
+	public boolean separator() {
+		return currentToken.getName().equals("SEP");
+	}
+
 	public boolean varKw(){
 		return currentToken.getName().equals("VAR_KW");
+	}
+	public boolean function(){
+		return currentToken.getName().equals("FUNCTION");
 	}
 	public boolean assignOp() {
 		return currentToken.getName().equals("ASSIGN_OP");

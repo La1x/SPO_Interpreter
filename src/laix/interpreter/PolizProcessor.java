@@ -54,7 +54,27 @@ public class PolizProcessor {
 						a = Integer.parseInt( stack.pop().getValue() );
 						b = Integer.parseInt( stack.pop().getValue() );
 						stack.push( new PostfixToken( "DIGIT", Integer.toString(b * a) ) );
-						break;					
+						break;
+				}
+			}
+
+			if ( function() ) {
+				int a = 0;
+				int b = 0;
+				switch ( currentToken.getValue() ) {
+					case "pow":
+						a = Integer.parseInt( stack.pop().getValue() );
+						b = Integer.parseInt( stack.pop().getValue() );
+						Double tempValue = Math.pow(b,a);
+						stack.push( new PostfixToken( "DIGIT", Integer.toString( tempValue.intValue() ) ) );
+						break;
+					case "fact":
+						a = Integer.parseInt( stack.pop().getValue() );
+						int fact = 1;
+						for (; a > 0; fact *= a--);
+						stack.push( new PostfixToken( "DIGIT", Integer.toString(fact) ) );
+						break;
+
 				}
 			}
 			i++;
@@ -76,6 +96,10 @@ public class PolizProcessor {
 				 currentToken.getName().equals("MINUS_OP") ||
 				 currentToken.getName().equals("MULT_OP") ||
 				 currentToken.getName().equals("DEL_OP") );
+	}
+
+	public boolean function() {
+		return currentToken.getName().equals("FUNCTION");
 	}
 
 	public void setVarTable(VarTable vt) {

@@ -32,10 +32,5 @@ public class UI{
 		Parser parser = new Parser();
 		parser.setTokens(tokens);
 		parser.lang();
-
-		//List<PostfixToken> postfixToken = parser.getPostfixToken();
-		//PolizProcessor processor = new PolizProcessor(postfixToken);
-		//process poliz body , print var table
-		//processor.go();
 	}
 }

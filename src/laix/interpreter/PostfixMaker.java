@@ -81,23 +81,23 @@ public class PostfixMaker {
 	}
 
 	private boolean isSeparator( PostfixToken t) {
-			return t.getName().equals("SEP");
+		return t.getName().equals("SEP");
 	}
 
 	private boolean isOpenBracket( PostfixToken t) {
-			return t.getName().equals("BRK_O");
+		return t.getName().equals("BRK_O");
 	}
 
 	private boolean isCloseBracket( PostfixToken t) {
-			return t.getName().equals("BRK_C");
+		return t.getName().equals("BRK_C");
 	}
 
 	private boolean isOperator( PostfixToken t) {
-			return OPERATORS.contains( t.getValue());
+		return OPERATORS.contains( t.getValue());
 	}
 
 	private boolean isFunction( PostfixToken t) {
-		return false;
+		return t.getName().equals("FUNCTION");
 	}
 
 	private int getPriority( PostfixToken t) {
