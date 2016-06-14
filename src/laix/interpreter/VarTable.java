@@ -45,7 +45,7 @@ public class VarTable {
 	public void varRegistration(String s, Integer i) throws Exception {
 		for ( String name : table.keySet() ) {
 			if ( s.equals(name) ) {
-				throw new Exception("\n[!]Syntax error: variable " + s + " already declared in this block.");
+				throw new Exception("\n[!]Syntax error: declaration in body cycle or variable " + s + " already declared in this block.");
 			}
 		}
 		table.put(s,i);
