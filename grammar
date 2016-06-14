@@ -2,7 +2,8 @@
 VAR_KW : var
 FOR_KW : for
 WHILE_KW : while
-FUNCTION : pow|fact
+STRUCT_KW : struct
+FUNCTION : pow|fact|print|write
 [End]
 
 [Terminals]

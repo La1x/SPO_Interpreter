@@ -50,7 +50,7 @@ public class Parser {
 	}
 	
 	public boolean expr() throws Exception {
-		if( declare() || assign() || while_expr() || function_kw() ) {
+		if( declare() || assign() || struct_expr() || while_expr() || function_kw() ) {
 			return true;
 		} else {
 			return false;
@@ -357,7 +357,7 @@ public class Parser {
 		}		
 	}
 
-	public boolean functionStmt() throws Exception{
+	public boolean functionStmt() throws Exception {
 		if ( function() ) {
 			stmtAccum.add( currentToken );
 			match();
@@ -400,6 +400,62 @@ public class Parser {
 		
 	}
 	// --- STATMENT END ---
+
+	// --- STRUCT ---
+	public boolean struct_expr() throws Exception {
+		say("Calling struct_expr:");
+		match();
+		if ( struct_decl() ) {
+			match();
+			if ( cbrOpen() ) {
+				if ( struct_body() ) {
+					match();
+					if ( cbrClose() ) {
+						return true;
+					} else { // !cbrClose
+						throw new Exception("\n[!]Syntax error: curly close bracket expected.");
+					}
+				} else { // !struct_body
+					throw new Exception("\n[!]Syntax error: struct body expected.");
+				}
+			} else { // !cbrOPen
+				throw new Exception("\n[!]Syntax error: curly open bracket expected.");
+			}
+		} else { // !!struct_decl
+			say("Struct not found.");
+			currentTokenNumber--;
+			return false;
+		}
+	}
+
+	public boolean struct_decl() throws Exception {
+		if ( struct_kw() ) {
+			match();
+			if ( var() ) {
+				return true;
+			} else {
+				throw new Exception("\n[!]Syntax error: struct name expected. currentToken:" + currentToken);
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public boolean struct_body() throws Exception {
+		while( !cbrClose() ) {
+			if( declare() || assign() ) {
+				continue;
+			}
+		}
+		//currentTokenNumber--;
+		return true;
+	}
+
+	public boolean struct_kw() {
+		return currentToken.getName().equals("STRUCT_KW");
+	}
+
+	// --- STRUCT END---
 	
 	public boolean sm()  {
 		return currentToken.getName().equals("SM");
