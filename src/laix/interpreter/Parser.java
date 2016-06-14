@@ -50,7 +50,7 @@ public class Parser {
 	}
 	
 	public boolean expr() throws Exception {
-		if( declare() || assign() || while_expr() ) {
+		if( declare() || assign() || while_expr() || function_kw() ) {
 			return true;
 		} else {
 			return false;
@@ -66,7 +66,7 @@ public class Parser {
 			if ( var() ) {
 				match();
 				if ( sm() ) {
-					topVarTable.put( tokens.get( currentTokenNumber-1 ).getValue(), 0 );
+					topVarTable.varRegistration( tokens.get( currentTokenNumber-1 ).getValue(), 0 );
 					return true;
 				}else { //!sm()
 					throw new Exception("VAR_KW, VAR found; SM expected; currentToken: " + currentToken);
@@ -154,7 +154,7 @@ public class Parser {
 					} else { // !while_body
 						throw new Exception("\n[!]Syntax error: while body expected.");
 					}
-				} else {
+				} else { // isWhileComplete == true
 					while ( !cbrClose() ) {
 						match();
 					}
@@ -246,7 +246,56 @@ public class Parser {
 		return ( currentToken.getName().equals("WHILE_KW") );
 	}
 	// --- WHILE (END) ---
+
+	// --- FUNCTION_KW ---
+	public boolean function_kw()  throws Exception {
+		say("Calling function_kw:");
+		stmtAccum = new ArrayList<Token> ();
+		match();
+		if ( function() ) {
+			stmtAccum.add( currentToken );
+			match();
+			if ( brOpen() ) {
+				stmtAccum.add( currentToken );
+				match();
+				if ( stmtUnit() ) {
+					stmtAccum.add( currentToken );
+					match();
+					if ( brClose() ) {
+						stmtAccum.add( currentToken );
+						match();
+						if ( sm() ) {
+							say("stmtAccum: ");
+							print(stmtAccum);
+							PostfixMaker pfm = new PostfixMaker();
+							pfm.make(stmtAccum);
+							say("Maker.out: ");
+							pfm.print();
+							PolizProcessor poliz =  new PolizProcessor( pfm.get(), topVarTable );
+							Integer result = poliz.go();
+							return true;
+						} else { //!sm
+							throw new Exception("VAR, ASSIGN_OP, statment found; SM expected; currentToken: [" + currentTokenNumber + "] " + currentToken);
+						}						
+					} else {
+						throw new Exception("\n[!]Syntax error: close bracket or separator expected in function: " + currentToken);	
+					}
+				} else {
+					throw new Exception("\n[!]Syntax error: operand expected in function: " + currentToken);	
+				}
+			} else {
+				throw new Exception("\n[!]Syntax error: open bracket expected in function: " + currentToken);
+			}
+		} else { // !function
+			say("Function_kw not found.");
+			currentTokenNumber--;
+			return false;
+		}		
+		// return true;
+	}
+	// --- FUNKTION_KW END ---
 	
+	// --- STATEMENT ---
 	public boolean stmt() throws Exception {
 		if ( operand() ) {
 			match();
@@ -350,6 +399,7 @@ public class Parser {
 		}
 		
 	}
+	// --- STATMENT END ---
 	
 	public boolean sm()  {
 		return currentToken.getName().equals("SM");
