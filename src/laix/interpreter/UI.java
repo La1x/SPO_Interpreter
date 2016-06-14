@@ -20,8 +20,8 @@ public class UI{
 	}
 
 	static void validInput() throws Exception {
-		fileHelper.testRead("valid-test2.input");
-		process("valid-test2.input");
+		fileHelper.testRead("valid-test.input");
+		process("valid-test.input");
 	}
 
 	static void process(String fileName) throws Exception {

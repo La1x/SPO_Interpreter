@@ -93,7 +93,12 @@ public class PostfixMaker {
 	}
 
 	private boolean isOperator( PostfixToken t) {
-		return OPERATORS.contains( t.getValue());
+		return ( t.getName().equals("PLUS_OP") ||
+				 t.getName().equals("MINUS_OP") ||
+				 t.getName().equals("MULT_OP") ||
+				 t.getName().equals("DEL_OP") ||
+				 t.getName().equals("GRT_OP") ||
+				 t.getName().equals("LST_OP") );
 	}
 
 	private boolean isFunction( PostfixToken t) {

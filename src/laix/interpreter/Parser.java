@@ -11,6 +11,8 @@ public class Parser {
 	private int currentTokenNumber;
 	private VarTable topVarTable;
 	private VarTable savedVarTable;
+
+	private boolean isWhileComplete = false;
 		
 	public void setTokens(List<Token> tokens){
 		this.tokens = tokens;
@@ -34,6 +36,9 @@ public class Parser {
 		topVarTable = new VarTable(topVarTable);
 
 		while ( currentTokenNumber < (tokens.size()-1) && expr() ) {
+			/*if ( isWhileComplete ) {
+				isWhileComplete = false;
+			}*/
 			exist = true;
 		}
 
@@ -45,10 +50,11 @@ public class Parser {
 	}
 	
 	public boolean expr() throws Exception {
-		if( declare() || assign() ) {
+		if( declare() || assign() || while_expr() ) {
 			return true;
 		} else {
-			throw new Exception("declare or assign expected, but " + currentToken + "found.");
+			return false;
+			// throw new Exception("declare or assign expected, but " + currentToken + "found.");
 		}		
 	}	
 	
@@ -114,6 +120,132 @@ public class Parser {
 			return false;
 		}
 	}
+
+	// --- WHILE ---
+	public boolean while_expr() throws Exception {
+		say("Calling while:");
+		
+		savedVarTable = topVarTable;
+		topVarTable = new VarTable(topVarTable);
+
+		boolean isOk = while_loop();
+
+		topVarTable = savedVarTable;
+		// topVarTable.deleteCurrent();
+		return isOk;
+	}
+
+	public boolean while_loop() throws Exception {
+		int startWhileTokenNumber = currentTokenNumber;
+		match();
+		if ( while_decl() ) {
+			match();
+			if ( cbrOpen() ) {
+				if ( isWhileComplete == false ) {
+					if ( while_body() ) {
+						match();
+						if ( cbrClose() ) {
+							currentTokenNumber = startWhileTokenNumber;
+							while_loop();
+							return true;
+						} else { // !cbrClose
+							throw new Exception("\n[!]Syntax error: curly close bracket expected.");
+						}
+					} else { // !while_body
+						throw new Exception("\n[!]Syntax error: while body expected.");
+					}
+				} else {
+					while ( !cbrClose() ) {
+						match();
+					}
+					// topVarTable = savedVarTable;
+					return true;
+				}				
+			} else { // !cbrOpen
+				throw new Exception("\n[!]Syntax error: curly open bracket expected.");
+			}
+		} else { // !while_decl
+			say("While not found.");
+			currentTokenNumber--;
+			return false;
+		}
+		// return true;
+	}
+
+	public boolean while_decl() throws Exception {
+		if ( while_kw() ) {
+			match();
+			if ( brOpen() ) {
+				match();
+				if ( while_limit() ) {
+					match();
+					if ( brClose() ) {
+						return true;
+					} else {
+						throw new Exception("\n[!]Syntax error: close bracket expected in while declaration.");
+					}
+				} else {
+					throw new Exception("\n[!]Syntax error: limit in while head expected in while declaration.");
+				}
+			} else {
+				throw new Exception("\n[!]Syntax error: open bracket expected in while declaration.");
+			}
+		} else { // !while_name
+			return false;
+		}
+	}
+
+	public boolean while_body() throws Exception {
+		while ( !cbrClose() ) {
+			expr();
+		}
+		return true;
+	}
+
+	public boolean while_limit() throws Exception {
+		stmtAccum = new ArrayList<Token> ();
+		if ( var() ) {
+			stmtAccum.add( currentToken );
+			match();
+			if ( op() ) {
+				stmtAccum.add( currentToken );
+				match();
+				if ( stmtUnit() ) {
+					stmtAccum.add( currentToken );
+
+					say("stmtAccum: ");
+					print(stmtAccum);
+					PostfixMaker pfm = new PostfixMaker();
+					pfm.make(stmtAccum);
+					say("Maker.out: ");
+					pfm.print();
+					PolizProcessor poliz =  new PolizProcessor( pfm.get(), topVarTable );
+					Integer result = poliz.go();
+					say("poliz result = " + result);
+
+					if ( result == 1 ) {
+						isWhileComplete = false;
+					} else if ( result == 0 ) {
+						isWhileComplete = true;
+					} else {
+						throw new Exception("\n[!]Syntax error: boolean statement expected in while head.");
+					}
+					return true;
+				} else {
+					throw new Exception("\n[!]Syntax error: var or digit expected in while head.");
+				}
+			} else {
+				throw new Exception("\n[!]Syntax error: operation expected in while head.");
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public boolean while_kw() {
+		return ( currentToken.getName().equals("WHILE_KW") );
+	}
+	// --- WHILE (END) ---
 	
 	public boolean stmt() throws Exception {
 		if ( operand() ) {
@@ -266,7 +398,8 @@ public class Parser {
 				 currentToken.getName().equals("MINUS_OP") ||
 				 currentToken.getName().equals("MULT_OP") ||
 				 currentToken.getName().equals("DEL_OP") ||
-				 currentToken.getName().equals("ASSIGN_OP") );
+				 currentToken.getName().equals("GRT_OP") ||
+				 currentToken.getName().equals("LST_OP") );
 	}
 
 	public boolean brOpen() {
@@ -275,6 +408,14 @@ public class Parser {
 
 	public boolean brClose() {
 		return currentToken.getName().equals("BRK_C");
+	}
+
+	public boolean cbrOpen() {
+		return currentToken.getName().equals("CBRK_O");
+	}
+
+	public boolean cbrClose() {
+		return currentToken.getName().equals("CBRK_C");
 	}
 
 	private void say( String str ) {

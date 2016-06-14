@@ -18,8 +18,8 @@ GRT_OP : '>'
 LST_OP : '<'
 BRK_O : '('
 BRK_C : ')'
-CBRK_O : '}'
-CBRK_C : '{'
+CBRK_O : '{'
+CBRK_C : '}'
 [End]
 
 /*

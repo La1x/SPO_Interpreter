@@ -25,6 +25,11 @@ public class VarTable {
 		return null;
 	}
 
+	// public void deleteCurrent() {
+	// 	table = prevTable.table;
+	// 	prevTable = prevTable.prevTable;
+	// }
+
 	public void print() {
 		System.out.println("\t\t\tVar Tables:");
 		for ( String name : table.keySet() ) {

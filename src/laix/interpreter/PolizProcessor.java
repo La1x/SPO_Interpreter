@@ -55,6 +55,16 @@ public class PolizProcessor {
 						b = Integer.parseInt( stack.pop().getValue() );
 						stack.push( new PostfixToken( "DIGIT", Integer.toString(b * a) ) );
 						break;
+					case "GRT_OP":
+						a = Integer.parseInt( stack.pop().getValue() );
+						b = Integer.parseInt( stack.pop().getValue() );
+						stack.push( new PostfixToken( "DIGIT", Integer.toString( (b > a) ? 1 : 0) ) );
+						break;
+					case "LST_OP":
+						a = Integer.parseInt( stack.pop().getValue() );
+						b = Integer.parseInt( stack.pop().getValue() );
+						stack.push( new PostfixToken( "DIGIT", Integer.toString( (b < a) ? 1 : 0) ) );
+						break;
 				}
 			}
 
@@ -95,7 +105,9 @@ public class PolizProcessor {
 		return ( currentToken.getName().equals("PLUS_OP") ||
 				 currentToken.getName().equals("MINUS_OP") ||
 				 currentToken.getName().equals("MULT_OP") ||
-				 currentToken.getName().equals("DEL_OP") );
+				 currentToken.getName().equals("DEL_OP") ||
+				 currentToken.getName().equals("GRT_OP") ||
+				 currentToken.getName().equals("LST_OP") );
 	}
 
 	public boolean function() {
