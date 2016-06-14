@@ -11,8 +11,25 @@ public class VarTable {
 		prevTable = p;
 	}
 
-	public void put(String s, Integer i) {
-		table.put(s, i);
+	public void put(String s, Integer i) throws Exception {
+		String found = null;
+		for ( VarTable t = this; t != null; t = t.prevTable ) {
+			for ( String name : t.table.keySet() ) {
+				if ( s.equals(name) ) {
+					found = name;
+					break;
+				}
+			}
+			if ( found != null ) {
+				break;
+			}
+		}
+
+		if ( found != null ) {
+			table.put(found, i);
+		} else {
+			throw new Exception("\n[!]Syntax error: variable " + s + " must be declared.");
+		}
 	}
 
 	public Integer get(String s) {
@@ -25,10 +42,22 @@ public class VarTable {
 		return null;
 	}
 
-	// public void deleteCurrent() {
-	// 	table = prevTable.table;
-	// 	prevTable = prevTable.prevTable;
-	// }
+	public void varRegistration(String s, Integer i) throws Exception {
+		for ( String name : table.keySet() ) {
+			if ( s.equals(name) ) {
+				throw new Exception("\n[!]Syntax error: variable " + s + " already declared in this block.");
+			}
+		}
+		table.put(s,i);
+	}
+
+	public void deleteCurrent() throws Exception {
+		if ( prevTable == null ) {
+			throw new Exception("\n[!]Table error: cant delete global var table.");
+		}
+	 	table = prevTable.table;
+	 	prevTable = prevTable.prevTable;
+	}
 
 	public void print() {
 		System.out.println("\t\t\tVar Tables:");
