@@ -2,12 +2,14 @@ package laix.interpreter;
 
 import java.util.List;
 import java.util.Stack;
+import java.util.Scanner;
 import java.lang.Integer;
 
 public class PolizProcessor {
 	private List<PostfixToken> postfixTokens;
 	private PostfixToken currentToken;
 	private VarTable varTable;
+	private Stack<PostfixToken> stack;
 
 	public PolizProcessor(List<PostfixToken> postfixTokens, VarTable vt) {
 		this.postfixTokens = postfixTokens;
@@ -15,7 +17,7 @@ public class PolizProcessor {
 	}
 
 	public int go() throws Exception {
-		Stack<PostfixToken> stack = new Stack<PostfixToken>();
+		stack = new Stack<PostfixToken>();
 		int i = 0;
 		while ( i < (postfixTokens.size()) ) {
 			currentToken = postfixTokens.get(i);
@@ -24,11 +26,7 @@ public class PolizProcessor {
 			}
 
 			if ( var() ) {
-				Integer varValue = varTable.get( currentToken.getValue() );
-				if ( varValue == null ) {
-					throw new Exception("Variable must be declared: " + currentToken);
-				}
-				stack.push( new PostfixToken( "DIGIT", varValue.toString() ) );	
+				stack.push(currentToken);	
 			}
 
 			if ( op() ) {
@@ -36,33 +34,33 @@ public class PolizProcessor {
 				int b = 0;
 				switch ( currentToken.getName() ) {
 					case "PLUS_OP":
-						a = Integer.parseInt( stack.pop().getValue() );
-						b = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
+						b = getVarValue();
 						stack.push( new PostfixToken( "DIGIT", Integer.toString(b + a) ) );
 						break;
 					case "MINUS_OP":
-						a = Integer.parseInt( stack.pop().getValue() );
-						b = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
+						b = getVarValue();
 						stack.push( new PostfixToken( "DIGIT", Integer.toString(b - a) ) );
 						break;
 					case "DEL_OP":
-						a = Integer.parseInt( stack.pop().getValue() );
-						b = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
+						b = getVarValue();
 						stack.push( new PostfixToken( "DIGIT", Integer.toString(b / a) ) );
 						break;
 					case "MULT_OP":
-						a = Integer.parseInt( stack.pop().getValue() );
-						b = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
+						b = getVarValue();
 						stack.push( new PostfixToken( "DIGIT", Integer.toString(b * a) ) );
 						break;
 					case "GRT_OP":
-						a = Integer.parseInt( stack.pop().getValue() );
-						b = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
+						b = getVarValue();
 						stack.push( new PostfixToken( "DIGIT", Integer.toString( (b > a) ? 1 : 0) ) );
 						break;
 					case "LST_OP":
-						a = Integer.parseInt( stack.pop().getValue() );
-						b = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
+						b = getVarValue();
 						stack.push( new PostfixToken( "DIGIT", Integer.toString( (b < a) ? 1 : 0) ) );
 						break;
 				}
@@ -73,17 +71,30 @@ public class PolizProcessor {
 				int b = 0;
 				switch ( currentToken.getValue() ) {
 					case "pow":
-						a = Integer.parseInt( stack.pop().getValue() );
-						b = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
+						b = getVarValue();
 						Double tempValue = Math.pow(b,a);
 						stack.push( new PostfixToken( "DIGIT", Integer.toString( tempValue.intValue() ) ) );
 						break;
 					case "fact":
-						a = Integer.parseInt( stack.pop().getValue() );
+						a = getVarValue();
 						int fact = 1;
 						for (; a > 0; fact *= a--);
 						stack.push( new PostfixToken( "DIGIT", Integer.toString(fact) ) );
 						break;
+					case "print":
+						a = getVarValue();
+						System.out.println(a);
+						return 0;
+					case "write":
+						int inputValue;
+						String varName = stack.pop().getValue();
+						// read from console
+						Scanner in = new Scanner(System.in);
+        				inputValue = in.nextInt();
+        				System.out.println("Put in var table " + varName + '=' + inputValue);
+						varTable.put(varName, inputValue);
+						return 0;
 
 				}
 			}
@@ -120,5 +131,19 @@ public class PolizProcessor {
 
 	public VarTable getVarTable() {
 		return varTable;
+	}
+
+	private Integer getVarValue() throws Exception {
+		Integer varValue = null;
+		if ( !stack.empty() && stack.peek().getName().equals("DIGIT") ) {
+			varValue = Integer.parseInt( stack.pop().getValue() );
+		}
+		if ( !stack.empty() && stack.peek().getName().equals("VAR") ) {
+			varValue = varTable.get( stack.pop().getValue() );
+		}
+		if ( varValue == null ) {
+			throw new Exception("Variable must be declared: " + currentToken);
+		}
+		return varValue;
 	}
 }
