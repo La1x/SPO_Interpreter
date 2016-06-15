@@ -1,5 +1,65 @@
-var value;
-var count;
-count = 100;
-value = 5;
-value = count - 100+value*2;
+var someItem;
+someItem = 10+90;
+
+struct RedTruck {
+	var strct_endlsBrkTest;
+	var strct_statmentTest;
+	var strct_assignTest;
+	var i;
+
+	i = 0;
+	strct_endlsBrkTest = (10 + 10 * (12-2)) + (7 + 3) * 10 + (((2+1)*10)+60);
+	strct_assignTest = 12;
+	strct_statmentTest = strct_endlsBrkTest * strct_assignTest;
+}
+
+var glob_endlsBrkTest;
+glob_endlsBrkTest = (10 + 10 * (12-2)) + (7 + 3) * 10 + (((2+1)*10)+60);
+
+var testStructAccessOne;
+var testStructAccessTwo;
+
+testStructAccessOne = RedTruck.strct_assignTest;
+testStructAccessTwo = 10 + (RedTruck.strct_endlsBrkTest + 10) * 2;
+
+var testFunctionOne;
+testFunctionOne = pow(2,5) + pow(2,5);
+
+var testFunctionTwo;
+testFunctionTwo = fact(4) * 2 - fact(4);
+
+var input_test;
+write(input_test);
+print(input_test);
+
+print(1337);
+
+var i;
+i = 50;
+while ( i > 0 ) {
+	print(i);
+	i = i - 1;
+}
+
+var cycle_one;
+cycle_one = 5;
+
+
+var cycle_two;
+cycle_two = 10;
+
+
+var cycle_three;
+cycle_three = 15;
+
+while ( cycle_one > 0 ) {
+	cycle_one = cycle_one - 1;
+	while ( cycle_two > 0 ) {
+		cycle_two = cycle_two - 1;
+		while ( cycle_three > 0 ) {
+			cycle_three = cycle_three - 1;
+		}
+	}
+}
+
+

@@ -22,7 +22,7 @@ public class Parser {
 	public boolean match(){
 		currentTokenNumber++;
 		currentToken = tokens.get(currentTokenNumber);
-		System.out.println("[" + currentTokenNumber + "] " + currentToken);
+		// System.out.println("[" + currentTokenNumber + "] " + currentToken);
 
 		return false;
 	}
@@ -563,13 +563,13 @@ public class Parser {
 	}
 
 	private void say( String str ) {
-		System.out.println("Parser: " + str);
+		// System.out.println("Parser: " + str);
 	}
 
 	public void print( List<Token> ts ) {
-		for(Token t : ts ) {
+		/*for(Token t : ts ) {
             System.out.print(t.getValue() + " ");
         }
-		System.out.println("");
+		System.out.println("");*/
 	}
 }

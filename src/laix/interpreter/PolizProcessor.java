@@ -100,7 +100,7 @@ public class PolizProcessor {
 						// read from console
 						Scanner in = new Scanner(System.in);
         				inputValue = in.nextInt();
-        				System.out.println("Put in var table " + varName + '=' + inputValue);
+        				// System.out.println("Put in var table " + varName + '=' + inputValue);
 						varTable.put(varName, inputValue);
 						return 0;
 

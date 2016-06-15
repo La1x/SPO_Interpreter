@@ -70,10 +70,10 @@ public class PostfixMaker {
 	}
 
 	public void print() {
-		for(PostfixToken t : outTokens) {
+		/*for(PostfixToken t : outTokens) {
             System.out.print(t.getValue() + " ");
         }
-		System.out.println("");
+		System.out.println("");*/
 	}
 
 	public List<PostfixToken> get() {

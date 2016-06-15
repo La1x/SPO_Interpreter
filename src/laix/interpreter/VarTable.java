@@ -136,7 +136,7 @@ public class VarTable {
 	}
 
 	public void print() {
-		System.out.println("\t\t\tVar Tables:");
+		System.out.println("\t\t\tVar Table:");
 		for ( String name : table.keySet() ) {
             String key = name;
             String value = table.get(name).toString();  
@@ -146,11 +146,11 @@ public class VarTable {
 		for ( String sname : structTable.keySet() ) {
 			String key = sname;
 			HashMap<String,Integer> strvl = structTable.get(sname);
-			System.out.println("\t\t\tstruct " + sname);
+			System.out.println("\t\t\t > struct " + sname + ":");
 			for ( String name2 : strvl.keySet() ) {
             	String key2 = name2;
             	String value2 = strvl.get(name2).toString();  
-            	System.out.println("\t\t\t\t " + key2 + "\t" + value2); 
+            	System.out.println("\t\t\t    " + key2 + "\t" + value2); 
 			}
 		}
 

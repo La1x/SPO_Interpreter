@@ -1,2 +1,12 @@
 javac -sourcepath ./src -d bin src/laix/interpreter/CLASSNAME.java
 java -classpath ./bin laix.interpreter.UI
+
+// print info:
+Parser:
+	- match()
+	- say()
+	- print()
+PostfixMaker:
+	- print()
+VarTable:
+	- print()
