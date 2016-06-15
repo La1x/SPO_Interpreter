@@ -16,7 +16,7 @@ public class Lexer {
 
 	// Global patterns
 	private Pattern pDIGIT = Pattern.compile("^0|[1-9]{1}[0-9]*$");
-	private Pattern pVAR = Pattern.compile("^[a-zA-Z]+$"); 
+	private Pattern pVAR = Pattern.compile("^[a-zA-Z_]+$"); 
 	private Pattern pWS = Pattern.compile("^\\s*$");
 
 	// maps
