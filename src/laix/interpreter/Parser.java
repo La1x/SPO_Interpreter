@@ -408,9 +408,12 @@ public class Parser {
 		if ( struct_decl() ) {
 			match();
 			if ( cbrOpen() ) {
+				topVarTable.structRegistration( tokens.get( currentTokenNumber-1 ).getValue() );
+				topVarTable.setStructOn( tokens.get( currentTokenNumber-1 ).getValue() );
 				if ( struct_body() ) {
 					match();
 					if ( cbrClose() ) {
+						topVarTable.setStructOff();
 						return true;
 					} else { // !cbrClose
 						throw new Exception("\n[!]Syntax error: curly close bracket expected.");
@@ -445,6 +448,12 @@ public class Parser {
 		while( !cbrClose() ) {
 			if( declare() || assign() ) {
 				continue;
+			}
+
+			if ( cbrClose() ) {
+				return true;
+			} else {
+				throw new Exception("\n[!]Syntax error: only declare or assign can be in struct body. currentToken:" + currentToken);
 			}
 		}
 		//currentTokenNumber--;
