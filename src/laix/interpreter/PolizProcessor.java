@@ -63,6 +63,14 @@ public class PolizProcessor {
 						b = getVarValue();
 						stack.push( new PostfixToken( "DIGIT", Integer.toString( (b < a) ? 1 : 0) ) );
 						break;
+					case "DOT_OP":
+						String varName = stack.pop().getValue();
+						String structName = stack.pop().getValue();
+						varTable.setStructOn( structName );
+						a = varTable.get( varName );
+						varTable.setStructOff();
+						stack.push( new PostfixToken( "DIGIT", Integer.toString( a ) ) );
+						break;
 				}
 			}
 
@@ -118,7 +126,8 @@ public class PolizProcessor {
 				 currentToken.getName().equals("MULT_OP") ||
 				 currentToken.getName().equals("DEL_OP") ||
 				 currentToken.getName().equals("GRT_OP") ||
-				 currentToken.getName().equals("LST_OP") );
+				 currentToken.getName().equals("LST_OP") || 
+				 currentToken.getName().equals("DOT_OP") );
 	}
 
 	public boolean function() {
@@ -137,11 +146,9 @@ public class PolizProcessor {
 		Integer varValue = null;
 		if ( !stack.empty() && stack.peek().getName().equals("DIGIT") ) {
 			varValue = Integer.parseInt( stack.pop().getValue() );
-		}
-		if ( !stack.empty() && stack.peek().getName().equals("VAR") ) {
+		} else if ( /*!stack.empty() && */stack.peek().getName().equals("VAR") ) {
 			varValue = varTable.get( stack.pop().getValue() );
-		}
-		if ( varValue == null ) {
+		} else if ( varValue == null ) {
 			throw new Exception("Variable must be declared: " + currentToken);
 		}
 		return varValue;

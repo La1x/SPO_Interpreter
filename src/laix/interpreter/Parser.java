@@ -315,7 +315,7 @@ public class Parser {
 				throw new Exception("\n[!]Syntax error: wrong bracket in statement.");
 			}
 		} else {
-			throw new Exception("1 " + currentToken);
+			throw new Exception("\n[!]Syntax error: statment expected. currentToken" + currentToken);
 		}
 		return true;			
 	}
@@ -350,9 +350,9 @@ public class Parser {
 	}
 	
 	public boolean stmtUnit() throws Exception{
-		if ( digit() || var() ){
+		if ( digit() || struct_stmt() || var() ){
 			return true;
-		}else {
+		} else {
 			return false;
 		}		
 	}
@@ -464,6 +464,29 @@ public class Parser {
 		return currentToken.getName().equals("STRUCT_KW");
 	}
 
+	public boolean struct_stmt() throws Exception {
+		// int savedNumber = currentTokenNumber;
+		if ( var() ) {
+			match();
+			if ( dot() ) {
+				stmtAccum.add( tokens.get( currentTokenNumber-1 ) );
+				stmtAccum.add( currentToken );
+				match();
+				if ( var() ) {
+					return true;
+				} else {
+				throw new Exception("\n[!]Syntax error: var expected after struct name. currentToken:" + currentToken);
+				}
+			} else {
+				currentTokenNumber -= 2;
+				match();
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
 	// --- STRUCT END---
 	
 	public boolean sm()  {
@@ -477,15 +500,21 @@ public class Parser {
 	public boolean varKw(){
 		return currentToken.getName().equals("VAR_KW");
 	}
+
 	public boolean function(){
 		return currentToken.getName().equals("FUNCTION");
 	}
+
 	public boolean assignOp() {
 		return currentToken.getName().equals("ASSIGN_OP");
 	}
 	
 	public boolean plus() {
 		return ( currentToken.getName().equals("PLUS_OP") );
+	}
+
+	public boolean dot() {
+		return currentToken.getName().equals("DOT_OP");
 	}
 	
 	public boolean minus() {

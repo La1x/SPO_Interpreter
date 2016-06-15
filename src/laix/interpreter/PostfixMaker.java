@@ -98,7 +98,8 @@ public class PostfixMaker {
 				 t.getName().equals("MULT_OP") ||
 				 t.getName().equals("DEL_OP") ||
 				 t.getName().equals("GRT_OP") ||
-				 t.getName().equals("LST_OP") );
+				 t.getName().equals("LST_OP") ||
+				 t.getName().equals("DOT_OP") );
 	}
 
 	private boolean isFunction( PostfixToken t) {
